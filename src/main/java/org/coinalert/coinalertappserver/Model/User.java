@@ -1,20 +1,32 @@
 package org.coinalert.coinalertappserver.Model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
+@Table(name = "users")
 @Getter
 @Setter
-@RequiredArgsConstructor
-@Table(name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String email;
-    private String password;
+
+    @Column(name = "nick_name", nullable = false)
     private String nickName;
+
+    @Column(nullable = false)
+    private String password;
+
+    public User(String nickName, String email, String password) {
+        this.nickName = nickName;
+        this.email = email;
+        this.password = password;
+    }
 }
