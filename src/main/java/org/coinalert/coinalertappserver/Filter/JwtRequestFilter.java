@@ -22,8 +22,10 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
+    @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
     private JwtUtil jwtUtil;
 
     @Override
@@ -33,28 +35,34 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String username = null;
         String jwt = null;
 
-        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            log.info(authorizationHeader);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            log.info("Authorization Header: {}", authorizationHeader);
             jwt = authorizationHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(jwt);
-                log.info(username);
+                log.info("Extracted Username: {}", username);
             } catch (ExpiredJwtException e) {
                 log.warn("JWT 토큰이 만료되었습니다.");
-            }catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 log.warn("유효하지 않은 토큰입니다.");
             }
         }
 
-        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if(jwtUtil.validateToken(jwt, userDetails.getUsername())) {
+            log.debug("Loaded UserDetails: {}", userDetails);
+            if (jwtUtil.validateToken(jwt, userDetails)) {
+                log.debug("JWT 토큰이 유효합니다.");
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            } else {
+                log.warn("JWT 토큰이 유효하지 않습니다.");
             }
+        } else {
+            log.warn("유효한 username 또는 SecurityContextHolder의 인증 정보가 없습니다.");
         }
         filterChain.doFilter(request, response);
     }
