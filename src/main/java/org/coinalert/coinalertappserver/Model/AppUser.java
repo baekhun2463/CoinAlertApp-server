@@ -11,10 +11,10 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class AppUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     private UUID id;
 
     @Column(nullable = false, unique = true)
@@ -26,9 +26,12 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    public User(String nickName, String email, String password) {
+    private String role;
+
+    public AppUser(String email, String password) {
         this.nickName = nickName;
         this.email = email;
         this.password = password;
     }
+
 }
