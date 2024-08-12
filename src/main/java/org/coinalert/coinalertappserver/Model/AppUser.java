@@ -3,6 +3,7 @@ package org.coinalert.coinalertappserver.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -26,6 +27,8 @@ public class AppUser {
     private String password;
 
     private String role;
+
+    private String create_at;
 
     public AppUser(String email, String password) {
         this.nickName = nickName;
