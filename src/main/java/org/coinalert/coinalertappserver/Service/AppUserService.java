@@ -24,7 +24,7 @@ public class AppUserService {
 //        return userRepository.findByEmail(email);
 //    }
 
-    public boolean isNickNameTaken(String nickName) {
-        return appUserRepository.findByNickName(nickName).isPresent();
-    }
+//    public boolean isNickNameTaken(String nickName) {
+//        return appUserRepository.findByNickName(nickName).isPresent();
+//    }
 }

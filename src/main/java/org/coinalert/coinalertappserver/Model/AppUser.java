@@ -6,7 +6,6 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,7 +19,7 @@ public class AppUser {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "nick_name", nullable = false, unique = true)
+    @Column(name = "nick_name", unique = true)
     private String nickName;
 
     @Column(nullable = false)
