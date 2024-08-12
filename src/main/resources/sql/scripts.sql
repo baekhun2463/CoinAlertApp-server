@@ -17,3 +17,16 @@ CREATE TABLE authorities (
 
 INSERT INTO users (username, password, enabled) VALUES ('test', '1234', 1);
 INSERT INTO authorities (username, authority) VALUES ('test', 'write');
+
+    validateUser(loginForm: NgForm) {
+        this.loginService.validateLoginDetails(this.model).subscribe(
+            responseData => {
+                this.model = <any> responseData.body;
+                let xsrf = getCookie("XSRF-TOKEN", xsrf);
+                window.sessionStorage.setItem("XSRF-TOKEN", xsrf);
+                this.model.authStatus = 'AUTH';
+                window.sessionStorage.setItem("userdetails", JSON.stringify(this.model));
+                this.router.navigate(['dashboard']);
+            }
+        )
+    }

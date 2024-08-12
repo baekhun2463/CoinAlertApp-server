@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -53,13 +54,4 @@ public class AppUserController {
         return response;
     }
 
-    @RequestMapping("/user")
-    public AppUser getUserDetailsAfterLogin(Authentication authentication) {
-        List<AppUser> appUsers = appUserRepository.findByEmail(authentication.getName());
-        if(!appUsers.isEmpty()) {
-            return appUsers.getFirst();
-        }else {
-            return null;
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package org.coinalert.coinalertappserver.Config;
 
+import lombok.RequiredArgsConstructor;
 import org.coinalert.coinalertappserver.Model.AppUser;
 import org.coinalert.coinalertappserver.Repository.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,37 +11,30 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class CoinAlertAppUsernamePwdAuthenticationProvider implements AuthenticationProvider {
 
-    @Autowired
-    private AppUserRepository appUserRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String pwd = authentication.getCredentials().toString();
-        List<AppUser> appUser = appUserRepository.findByEmail(username);
-        if(!appUser.isEmpty()) {
-            if(passwordEncoder.matches(pwd, appUser.getFirst().getPassword())) {
-                List<GrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(username));
-                return new UsernamePasswordAuthenticationToken(username, pwd, authorities);
-            }else {
-                throw new BadCredentialsException("유효하지 않은 비밀번호입니다.");
-            }
-        }else {
-            throw new BadCredentialsException("일치하는 아이디가 없습니다.");
-        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(username,pwd,userDetails.getAuthorities());
     }
 
     @Override
