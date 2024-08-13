@@ -1,21 +1,22 @@
 package org.coinalert.coinalertappserver.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class AppUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -24,16 +25,16 @@ public class AppUser {
     private String nickName;
 
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     private String role;
 
-    private String create_at;
+    private String create_dt;
 
-    public AppUser(String email, String password) {
-        this.nickName = nickName;
-        this.email = email;
-        this.password = password;
-    }
+    @JsonIgnore
+    @OneToMany(mappedBy = "appUser" , fetch = FetchType.EAGER)
+    private Set<Authority> authorities;
+
 
 }

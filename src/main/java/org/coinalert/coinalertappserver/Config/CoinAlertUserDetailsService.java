@@ -12,18 +12,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CoinAlertAppUserDetailsService implements UserDetailsService {
+public class CoinAlertUserDetailsService implements UserDetailsService {
 
     private final AppUserRepository appUserRepository;
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         AppUser appUser = appUserRepository.findByEmail(username).orElseThrow(() -> new
-                UsernameNotFoundException("일치하는 회원을 찾을 수 없습니다. : " + username));
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(appUser.getRole()));
-        return new User(appUser.getEmail(), appUser.getPassword(), authorities);
-    }
+                UsernameNotFoundException("User details not found for the user: " + username));
+        List<GrantedAuthority> authorities = appUser.getAuthorities().stream().map(authority -> new
+                SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
+        return new User(appUser.getEmail(), appUser.getPassword(), authorities);    }
 }

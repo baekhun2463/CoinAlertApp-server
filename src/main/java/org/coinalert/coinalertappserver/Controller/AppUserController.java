@@ -4,12 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.coinalert.coinalertappserver.Model.AppUser;
 import org.coinalert.coinalertappserver.Repository.AppUserRepository;
-import org.coinalert.coinalertappserver.Service.AppUserService;
-import org.coinalert.coinalertappserver.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +36,7 @@ public class AppUserController {
         try {
             String hasedPwd = passwordEncoder.encode(appUser.getPassword());
             appUser.setPassword(hasedPwd);
-            appUser.setCreate_at(String.valueOf(new Date(System.currentTimeMillis())));
+            appUser.setCreate_dt(String.valueOf(new Date(System.currentTimeMillis())));
             savedAppUser = appUserRepository.save(appUser);
             if(Objects.equals(savedAppUser.getEmail(), appUser.getEmail())) {
                 response = ResponseEntity
@@ -52,6 +49,12 @@ public class AppUserController {
                     .body("예외 상황 " + e.getMessage());
         }
         return response;
+    }
+
+    @RequestMapping("/user")
+    public AppUser getUserDetailsAfterLogin(Authentication authentication) {
+        Optional<AppUser> appUsers = appUserRepository.findByEmail(authentication.getName());
+        return appUsers.orElse(null);
     }
 
 }
