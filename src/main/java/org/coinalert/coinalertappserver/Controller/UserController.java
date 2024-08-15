@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) throws AuthenticationException {
+    public ResponseEntity<?> login(@RequestBody User user) throws BadCredentialsException {
         try {
             // 사용자 인증 시도
             Authentication authentication = authenticationManager.authenticate(

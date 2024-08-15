@@ -7,10 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class JwtResponse {
-    private String jwtToken;
+    private String jwt;
 
-    public JwtResponse(String jwtToken) {
-        this.jwtToken = jwtToken;
+    public JwtResponse(String jwt) {
+        this.jwt = jwt;
     }
 
     // Getters and setters
