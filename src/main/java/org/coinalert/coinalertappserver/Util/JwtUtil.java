@@ -17,7 +17,7 @@ public class JwtUtil {
 
     private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final String jwtIssuer = "powerissuer";
-    private final long jwtExpirationInMs = 3600000; // 1 hour
+    private final long jwtExpirationInMs = 360000000; // 1 hour
 
     // JWT 토큰 생성
     public String generateToken(Authentication authentication) {
