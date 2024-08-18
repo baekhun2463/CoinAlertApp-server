@@ -4,6 +4,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,8 @@ import java.util.Date;
 public class JwtUtil {
 
     private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final String jwtIssuer = "powerissuer";
+    @Value("${jwt.issuer}")
+    private String jwtIssuer;
     private final long jwtExpirationInMs = 360000000; // 1 hour
 
     // JWT 토큰 생성

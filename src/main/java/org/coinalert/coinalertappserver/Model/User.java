@@ -21,12 +21,22 @@ public class User implements UserDetails{
     private Long id;
 
     @Column(unique = true)
+    private String githubId;
+
+    @Column(unique = true, nullable = true)
+    private String username;
+
+    @Column(nullable = true)
+    private String name;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
     private String password;
 
-    @Column(unique = true)
-    private String nickname;
+    @Column(nullable = true)
+    private String avatarUrl;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

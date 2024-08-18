@@ -32,4 +32,22 @@ public class UserService implements UserDetailsService{
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다."));
     }
+
+    public User saveOrUpdateUser(User user) {
+        User existingUser = userRepository.findByGithubId(user.getGithubId()).orElse(null);
+
+        if(existingUser == null) {
+            existingUser = new User();
+            existingUser.setGithubId(user.getGithubId());
+            existingUser.setUsername(user.getUsername());
+            existingUser.setName(user.getName());
+            existingUser.setEmail(user.getEmail());
+            existingUser.setAvatarUrl(user.getAvatarUrl());
+        }else {
+            existingUser.setName(user.getName());
+            existingUser.setEmail(user.getEmail());
+            existingUser.setAvatarUrl(user.getAvatarUrl());
+        }
+        return userRepository.save(existingUser);
+    }
 }

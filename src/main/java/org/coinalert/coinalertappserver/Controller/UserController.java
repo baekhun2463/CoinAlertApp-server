@@ -1,13 +1,12 @@
 package org.coinalert.coinalertappserver.Controller;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.coinalert.coinalertappserver.Model.GitHubUserDTO;
 import org.coinalert.coinalertappserver.Model.JwtResponse;
 import org.coinalert.coinalertappserver.Model.User;
 import org.coinalert.coinalertappserver.Repository.UserRepository;
 import org.coinalert.coinalertappserver.Service.UserService;
 import org.coinalert.coinalertappserver.Util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.naming.AuthenticationException;
 import java.util.Optional;
 
 @Slf4j
@@ -77,7 +75,18 @@ public class UserController {
         }
     }
 
+    @PostMapping("/github-login")
+    public ResponseEntity<?> loginWithGitHub(@RequestBody GitHubUserDTO gitHubUserDTO) {
+        User user = new User();
+        user.setGithubId(gitHubUserDTO.getId());
+        user.setUsername(gitHubUserDTO.getLogin());
+        user.setName(gitHubUserDTO.getName());
+        user.setEmail(gitHubUserDTO.getEmail());
+        user.setAvatarUrl(gitHubUserDTO.getAvatar_url());
 
+        User savedUser = userService.saveOrUpdateUser(user);
+        return ResponseEntity.ok(savedUser);
+    }
 
 
 }
