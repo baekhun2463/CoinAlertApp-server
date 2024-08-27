@@ -23,7 +23,6 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/auth")
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
@@ -75,18 +74,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/github-login")
-    public ResponseEntity<?> loginWithGitHub(@RequestBody GitHubUserDTO gitHubUserDTO) {
-        User user = new User();
-        user.setGithubId(gitHubUserDTO.getId());
-        user.setUsername(gitHubUserDTO.getLogin());
-        user.setName(gitHubUserDTO.getName());
-        user.setEmail(gitHubUserDTO.getEmail());
-        user.setAvatarUrl(gitHubUserDTO.getAvatar_url());
-
-        User savedUser = userService.saveOrUpdateUser(user);
-        return ResponseEntity.ok(savedUser);
-    }
 
 
 }

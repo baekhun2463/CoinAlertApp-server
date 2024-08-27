@@ -19,7 +19,7 @@ public class JwtUtil {
     private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     @Value("${jwt.issuer}")
     private String jwtIssuer;
-    private final long jwtExpirationInMs = 360000000; // 1 hour
+    private final long jwtExpirationInMs = 36000; // 1 hour
 
     // JWT 토큰 생성
     public String generateToken(Authentication authentication) {
@@ -33,6 +33,16 @@ public class JwtUtil {
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
+    public String generateTokenOauth2(String accessToken) {
+        // JWT 토큰 생성 로직
+        return Jwts.builder()
+                .setSubject(accessToken)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(SignatureAlgorithm.HS256, jwtSecret)
                 .compact();
     }
 
