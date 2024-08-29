@@ -1,7 +1,6 @@
 package org.coinalert.coinalertappserver.Controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.coinalert.coinalertappserver.Model.GitHubUserDTO;
 import org.coinalert.coinalertappserver.Model.JwtResponse;
 import org.coinalert.coinalertappserver.Model.User;
 import org.coinalert.coinalertappserver.Repository.UserRepository;
@@ -16,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
@@ -61,7 +59,7 @@ public class UserController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // JWT 토큰 생성
-            String jwt = jwtUtil.generateToken(authentication);
+            String jwt = jwtUtil.generateAccessToken(authentication);
 
             return ResponseEntity.ok(new JwtResponse(jwt));
         } catch (BadCredentialsException e) {

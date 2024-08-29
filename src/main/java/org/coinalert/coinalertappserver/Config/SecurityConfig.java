@@ -3,7 +3,9 @@ package org.coinalert.coinalertappserver.Config;
 import lombok.RequiredArgsConstructor;
 import org.coinalert.coinalertappserver.Filter.JwtFilter;
 import org.coinalert.coinalertappserver.Repository.UserRepository;
+import org.coinalert.coinalertappserver.Service.CustomOAuth2UserService;
 import org.coinalert.coinalertappserver.Service.UserService;
+import org.coinalert.coinalertappserver.Util.OAuth2SuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +37,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final CustomOAuth2UserService oAuth2UserService;
 
     @Value("${spring.security.oauth2.client.registration.github.client-id}")
     private String clientId;
@@ -56,13 +60,13 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/register", "/auth/github-login", "/error").permitAll()
+                        .requestMatchers("/auth/register", "/auth/github-login", "/error" , "/auth/success").permitAll()
                         .requestMatchers("/auth/login").authenticated()
                 )
-//                .oauth2Login(oauth ->
-//                        oauth.userInfoEndpoint(c -> c.userService(oAuth2UserService))
-//                                .successHandler(oAuth2SuccessHandler)
-//                )
+                .oauth2Login(oauth ->
+                        oauth.userInfoEndpoint(c -> c.userService(oAuth2UserService))
+                                .successHandler(oAuth2SuccessHandler)
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
