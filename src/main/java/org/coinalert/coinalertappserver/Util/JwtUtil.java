@@ -19,9 +19,21 @@ public class JwtUtil {
     private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     @Value("${jwt.issuer}")
     private String jwtIssuer;
-    private final long jwtAccessTokenExpirationInMs = 3600000; // 1 hour
+    private final long jwtAccessTokenExpirationInMs = 3600; // 1 hour
     private final long jwtRefreshTokenExpirationInMs = 86400000; // 24 hours
 
+
+    public String generateToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtAccessTokenExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(jwtSecret)
+                .compact();
+    }
     // JWT Access Token 생성
     public String generateAccessToken(Authentication authentication) {
         String username = authentication.getName();

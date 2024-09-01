@@ -2,16 +2,12 @@ package org.coinalert.coinalertappserver.Config;
 
 import lombok.RequiredArgsConstructor;
 import org.coinalert.coinalertappserver.Filter.JwtFilter;
-import org.coinalert.coinalertappserver.Repository.UserRepository;
 import org.coinalert.coinalertappserver.Service.CustomOAuth2UserService;
-import org.coinalert.coinalertappserver.Service.UserService;
 import org.coinalert.coinalertappserver.Util.OAuth2SuccessHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,14 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -60,13 +50,15 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/register", "/auth/github-login", "/error" , "/auth/success").permitAll()
-                        .requestMatchers("/auth/login").authenticated()
+                                .requestMatchers("/**").permitAll()
+//                        .requestMatchers("/auth/register", "/auth/github-login", "/error" , "/auth/success").permitAll()
                 )
-                .oauth2Login(oauth ->
-                        oauth.userInfoEndpoint(c -> c.userService(oAuth2UserService))
-                                .successHandler(oAuth2SuccessHandler)
-                )
+//                .oauth2Login(oauth ->
+//                        oauth.userInfoEndpoint(c -> c.userService(oAuth2UserService))
+//                                .successHandler(oAuth2SuccessHandler)
+//                )
+                .oauth2Login(o -> o.defaultSuccessUrl("/auth/github-login/success",true)
+                        .failureUrl("/auth/github-login/failure"))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

@@ -1,8 +1,8 @@
 package org.coinalert.coinalertappserver.Service;
 
-import org.coinalert.coinalertappserver.Model.User;
-import org.coinalert.coinalertappserver.Repository.UserRepository;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
+import org.coinalert.coinalertappserver.Model.Member;
+import org.coinalert.coinalertappserver.Repository.MemberRepository;
+import org.coinalert.coinalertappserver.Util.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,44 +10,47 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class UserService implements UserDetailsService{
 
     @Autowired
-    private UserRepository userRepository;
+    private MemberRepository memberRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
 
-    public User registerUser(User user) {
+    public Member registerUser(Member member) {
         // 비밀번호 암호화
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+        member.setPassword(passwordEncoder.encode(member.getPassword()));
+        member.setCreatedAt(LocalDateTime.now());
+        member.setRole(Role.USER);
         // 회원 정보 저장
-        return userRepository.save(user);
+        return memberRepository.save(member);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username)
+        return memberRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다."));
     }
 
-    public User saveOrUpdateUser(User user) {
-        User existingUser = userRepository.findByGithubId(user.getGithubId()).orElse(null);
-
-        if(existingUser == null) {
-            existingUser = new User();
-            existingUser.setGithubId(user.getGithubId());
-            existingUser.setUsername(user.getUsername());
-            existingUser.setName(user.getName());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setAvatarUrl(user.getAvatarUrl());
-        }else {
-            existingUser.setName(user.getName());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setAvatarUrl(user.getAvatarUrl());
-        }
-        return userRepository.save(existingUser);
-    }
+//    public Member saveOrUpdateUser(Member member) {
+//        Member existingMember = userRepository.findByGithubId(member.getGithubId()).orElse(null);
+//
+//        if(existingMember == null) {
+//            existingMember = new Member();
+//            existingMember.setGithubId(member.getGithubId());
+//            existingMember.setUsername(member.getUsername());
+//            existingMember.setName(member.getName());
+//            existingMember.setEmail(member.getEmail());
+//            existingMember.setAvatarUrl(member.getAvatarUrl());
+//        }else {
+//            existingMember.setName(member.getName());
+//            existingMember.setEmail(member.getEmail());
+//            existingMember.setAvatarUrl(member.getAvatarUrl());
+//        }
+//        return userRepository.save(existingMember);
+//    }
 }
