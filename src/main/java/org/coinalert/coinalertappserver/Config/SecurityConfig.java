@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-//                                .requestMatchers().authenticated()
+                                .requestMatchers("/auth/deleteAccount").authenticated()
                                 .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

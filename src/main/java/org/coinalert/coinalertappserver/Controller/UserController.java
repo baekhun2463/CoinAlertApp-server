@@ -12,12 +12,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -84,6 +83,27 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/deleteAccount")
+    public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
+        log.info(userDetails.getUsername());
+        if(userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
+        }
+
+        String identifier = userDetails.getUsername();
+
+        Member member = memberRepository.findByEmail(identifier)
+                .orElseGet(() -> memberRepository.findByNickname(identifier)
+                        .orElse(null));
+
+        if(member == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+
+        memberRepository.delete(member);
+
+        return ResponseEntity.ok("계정이 성공적으로 삭제되었습니다");
+    }
 
 
 }

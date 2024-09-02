@@ -25,8 +25,10 @@ public class Member implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 유저 고유 ID
 
+    @Column(unique = true)
     private String email; // 이메일 (모든 사용자에게 공통)
 
+    @Column(unique = true)
     private String nickname; // 이름 (모든 사용자에게 공통)
 
     private String password; // 비밀번호 (일반 회원가입 유저만)

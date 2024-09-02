@@ -19,8 +19,8 @@ public class JwtUtil {
     private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     @Value("${jwt.issuer}")
     private String jwtIssuer;
-    private final long jwtAccessTokenExpirationInMs = 3600; // 1 hour
-    private final long jwtRefreshTokenExpirationInMs = 86400000; // 24 hours
+    private final long jwtAccessTokenExpirationInMs = 3600000;
+    private final long jwtRefreshTokenExpirationInMs = 86400000;
 
 
     public String generateToken(String username) {
