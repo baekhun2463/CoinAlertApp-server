@@ -36,21 +36,4 @@ public class UserService implements UserDetailsService{
                 .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다."));
     }
 
-//    public Member saveOrUpdateUser(Member member) {
-//        Member existingMember = userRepository.findByGithubId(member.getGithubId()).orElse(null);
-//
-//        if(existingMember == null) {
-//            existingMember = new Member();
-//            existingMember.setGithubId(member.getGithubId());
-//            existingMember.setUsername(member.getUsername());
-//            existingMember.setName(member.getName());
-//            existingMember.setEmail(member.getEmail());
-//            existingMember.setAvatarUrl(member.getAvatarUrl());
-//        }else {
-//            existingMember.setName(member.getName());
-//            existingMember.setEmail(member.getEmail());
-//            existingMember.setAvatarUrl(member.getAvatarUrl());
-//        }
-//        return userRepository.save(existingMember);
-//    }
 }

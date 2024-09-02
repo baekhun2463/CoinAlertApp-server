@@ -3,7 +3,7 @@ package org.coinalert.coinalertappserver.Model;
 import lombok.Getter;
 import lombok.Setter;
 
-// DTO for JWT response
+// DTO
 @Getter
 @Setter
 public class JwtResponse {

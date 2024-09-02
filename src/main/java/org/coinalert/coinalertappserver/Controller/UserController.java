@@ -6,7 +6,6 @@ import org.coinalert.coinalertappserver.Model.Member;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Service.UserService;
 import org.coinalert.coinalertappserver.Util.JwtUtil;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
