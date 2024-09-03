@@ -35,6 +35,8 @@ public class Member implements UserDetails {
 
     private String oauth2Provider; // OAuth2 제공자 정보 (OAuth2 회원가입 유저만)
 
+    private Long oauth2Id;
+
     private LocalDateTime createdAt; // 계정 생성 날짜 (모든 사용자에게 공통)
 
     private LocalDateTime lastLogin;

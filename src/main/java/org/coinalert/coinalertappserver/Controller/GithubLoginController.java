@@ -23,27 +23,36 @@ public class GithubLoginController {
     private final JwtUtil jwtUtil;
     @PostMapping("/github-login")
     public ResponseEntity<?> githubLogin(@RequestBody Member member) {
-
-        Optional<Member> existingMember = memberRepository.findByNickname(member.getNickname());
+        // 이메일을 기준으로 회원을 찾습니다.
+        Optional<Member> existingMember = memberRepository.findByEmail(member.getEmail());
 
         if(existingMember.isPresent()) {
-            existingMember.get().setLastLogin(LocalDateTime.now());
-            String jwt = jwtUtil.generateTokenOauth2(existingMember.get().getId().toString());
+            // 기존 회원이 존재하는 경우, 마지막 로그인 시간 업데이트
+            Member existing = existingMember.get();
+            existing.setLastLogin(LocalDateTime.now());
+            memberRepository.save(existing); // 업데이트된 정보를 저장
+
+            // JWT 토큰 생성
+            String jwt = jwtUtil.generateTokenOauth2(existing.getEmail()); // 이메일을 사용하여 JWT 생성
             return ResponseEntity.ok(new JwtResponse(jwt));
-        }else {
+        } else {
+            // 새로운 회원 등록
             Member newMember = Member.builder()
-                    .id(member.getId())
                     .nickname(member.getNickname())
+                    .email(member.getEmail())
                     .createdAt(LocalDateTime.now())
                     .lastLogin(LocalDateTime.now())
                     .oauth2Provider("GitHub")
+                    .oauth2Id(member.getId()) // GitHub로부터 받은 ID를 설정
                     .avatar_url(member.getAvatar_url())
                     .role(Role.USER)
                     .build();
 
+            // 새 멤버를 저장
             memberRepository.save(newMember);
 
-            String jwt = jwtUtil.generateTokenOauth2(newMember.getId().toString());
+            // JWT 토큰 생성
+            String jwt = jwtUtil.generateTokenOauth2(newMember.getEmail()); // 이메일을 사용하여 JWT 생성
             return ResponseEntity.ok(new JwtResponse(jwt));
         }
     }

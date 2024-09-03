@@ -85,15 +85,13 @@ public class UserController {
 
     @DeleteMapping("/deleteAccount")
     public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        log.info(userDetails.getUsername());
         if(userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
         }
 
         String identifier = userDetails.getUsername();
-
         Member member = memberRepository.findByEmail(identifier)
-                .orElseGet(() -> memberRepository.findByNickname(identifier)
+                .orElseGet(() -> memberRepository.findByOauth2Id(Long.valueOf(identifier))
                         .orElse(null));
 
         if(member == null) {

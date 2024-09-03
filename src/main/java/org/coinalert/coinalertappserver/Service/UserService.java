@@ -1,5 +1,6 @@
 package org.coinalert.coinalertappserver.Service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.coinalert.coinalertappserver.Model.Member;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Util.Role;
@@ -11,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
+@Slf4j
 @Service
 public class UserService implements UserDetailsService{
 
@@ -33,7 +36,8 @@ public class UserService implements UserDetailsService{
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return memberRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다."));
+                .orElseGet(() -> memberRepository.findByOauth2Id(Long.valueOf(username))
+                        .orElse(null));
     }
 
 }
