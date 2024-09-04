@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.coinalert.coinalertappserver.Model.JwtResponse;
 import org.coinalert.coinalertappserver.Model.Member;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
-import org.coinalert.coinalertappserver.Service.UserService;
+import org.coinalert.coinalertappserver.Service.MemberService;
 import org.coinalert.coinalertappserver.Util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,19 +19,21 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequestMapping("/auth")
-public class UserController {
-    private final UserService userService;
+public class MemberController {
+    private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    public UserController(UserService userService, MemberRepository memberRepository, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
-        this.userService = userService;
+    public MemberController(MemberService memberService, MemberRepository memberRepository, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        this.memberService = memberService;
         this.memberRepository = memberRepository;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -47,7 +49,7 @@ public class UserController {
         if (userExists(member.getEmail())) {
             return ResponseEntity.badRequest().body("이메일이 이미 있습니다.");
         }
-        userService.registerUser(member);
+        memberService.registerUser(member);
         return ResponseEntity.ok("성공적으로 회원가입이 되었습니다.");
     }
 
@@ -102,6 +104,25 @@ public class UserController {
 
         return ResponseEntity.ok("계정이 성공적으로 삭제되었습니다");
     }
+
+    @PostMapping("/findEmailByNickName")
+    public ResponseEntity<?> findEmailByNickName(@RequestBody Map<String, String> payload) {
+        String nickName = payload.get("nickName");
+
+        if (nickName == null || nickName.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("닉네임을 입력해주세요.");
+        }
+
+        Optional<Member> member = memberRepository.findByNickname(nickName);
+
+        if (member.isPresent()) {
+            String email = member.get().getEmail();
+            return ResponseEntity.ok(email);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("닉네임이 올바르지 않습니다.");
+        }
+    }
+
 
 
 }

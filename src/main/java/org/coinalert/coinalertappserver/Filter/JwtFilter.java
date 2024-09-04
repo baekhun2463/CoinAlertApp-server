@@ -5,7 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.coinalert.coinalertappserver.Service.UserService;
+import org.coinalert.coinalertappserver.Service.MemberService;
 import org.coinalert.coinalertappserver.Util.JwtUtil;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,11 +20,11 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final UserService userService;
+    private final MemberService memberService;
     private final JwtUtil jwtUtil;
 
-    public JwtFilter(@Lazy UserService userService, JwtUtil jwtUtil) {
-        this.userService = userService;
+    public JwtFilter(@Lazy MemberService memberService, JwtUtil jwtUtil) {
+        this.memberService = memberService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -41,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.getUsernameFromToken(token);
                 if (jwtUtil.validateToken(token)) {
-                    UserDetails userDetails = userService.loadUserByUsername(username);
+                    UserDetails userDetails = memberService.loadUserByUsername(username);
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

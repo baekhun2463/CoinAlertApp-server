@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class UserService implements UserDetailsService{
+public class MemberService implements UserDetailsService{
 
     @Autowired
     private MemberRepository memberRepository;
@@ -32,6 +32,8 @@ public class UserService implements UserDetailsService{
         // 회원 정보 저장
         return memberRepository.save(member);
     }
+
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
