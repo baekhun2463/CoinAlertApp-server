@@ -1,8 +1,10 @@
 package org.coinalert.coinalertappserver.Controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.coinalert.coinalertappserver.Model.JwtResponse;
 import org.coinalert.coinalertappserver.Model.Member;
+import org.coinalert.coinalertappserver.Model.ResetPasswordRequestDTO;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Service.MemberService;
 import org.coinalert.coinalertappserver.Util.JwtUtil;
@@ -16,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -25,19 +28,15 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/auth")
 public class MemberController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    public MemberController(MemberService memberService, MemberRepository memberRepository, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
-        this.memberService = memberService;
-        this.memberRepository = memberRepository;
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-    }
 
     private boolean userExists(String email) {
         Optional<Member> user = memberRepository.findByEmail(email);
@@ -120,6 +119,21 @@ public class MemberController {
             return ResponseEntity.ok(email);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("닉네임이 올바르지 않습니다.");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO) {
+        Optional<Member> memberOptional = memberRepository.findByEmail(resetPasswordRequestDTO.getEmail());
+
+        if(memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+
+            member.setPassword(passwordEncoder.encode(resetPasswordRequestDTO.getPassword()));
+            memberRepository.save(member);
+            return ResponseEntity.ok("비밀번호가 성공적으로 재설정되었습니다.");
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("이메일을 찾을 수 없습니다.");
         }
     }
 
