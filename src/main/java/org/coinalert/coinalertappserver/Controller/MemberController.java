@@ -37,15 +37,11 @@ public class MemberController {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-
-    private boolean userExists(String email) {
-        Optional<Member> user = memberRepository.findByEmail(email);
-        return user.isPresent();
-    }
-
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Member member) {
-        if (userExists(member.getEmail())) {
+        Optional<Member> user = memberRepository.findByEmail(member.getEmail());
+
+        if (user.isPresent()) {
             return ResponseEntity.badRequest().body("이메일이 이미 있습니다.");
         }
         memberService.registerUser(member);
@@ -71,7 +67,7 @@ public class MemberController {
             memberRepository.save(foundMember);
 
             // JWT 토큰 생성
-            String jwt = jwtUtil.generateAccessToken(authentication);
+            String jwt = jwtUtil.generateToken(authentication);
 
             return ResponseEntity.ok(new JwtResponse(jwt));
         } catch (BadCredentialsException e) {

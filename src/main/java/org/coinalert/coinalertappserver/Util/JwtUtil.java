@@ -22,20 +22,8 @@ public class JwtUtil {
     private final long jwtAccessTokenExpirationInMs = 3600000;
     private final long jwtRefreshTokenExpirationInMs = 86400000;
 
-
-    public String generateToken(String username) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtAccessTokenExpirationInMs);
-
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
-                .signWith(jwtSecret)
-                .compact();
-    }
     // JWT Access Token 생성
-    public String generateAccessToken(Authentication authentication) {
+    public String generateToken(Authentication authentication) {
         String username = authentication.getName();
         Date now = new Date();
         Date expiredDate = new Date(now.getTime() + jwtAccessTokenExpirationInMs);
@@ -49,20 +37,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // JWT Refresh Token 생성
-    public String generateRefreshToken(Authentication authentication, String accessToken) {
-        String username = authentication.getName();
-        Date now = new Date();
-        Date expiredDate = new Date(now.getTime() + jwtRefreshTokenExpirationInMs);
-
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuer(jwtIssuer)
-                .setIssuedAt(now)
-                .setExpiration(expiredDate)
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();
-    }
 
     // 기존 JWT 토큰 생성 메서드 (OAuth2용)
     public String generateTokenOauth2(String accessToken) {
