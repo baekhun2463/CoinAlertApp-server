@@ -31,7 +31,9 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers("/auth/deleteAccount", "/auth/updateNickname", "/auth/getNickname").authenticated()
+                                .requestMatchers("/auth/deleteAccount", "/auth/updateNickname",
+                                        "/auth/getNickname", "/api/savePriceData", "/api/priceData",
+                                "/api/deletePriceData/**").authenticated()
                                 .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
