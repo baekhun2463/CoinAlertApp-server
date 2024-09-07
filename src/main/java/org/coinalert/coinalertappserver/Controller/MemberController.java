@@ -1,9 +1,11 @@
 package org.coinalert.coinalertappserver.Controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.coinalert.coinalertappserver.Model.JwtResponse;
 import org.coinalert.coinalertappserver.Model.Member;
+import org.coinalert.coinalertappserver.Model.NicknameResponse;
 import org.coinalert.coinalertappserver.Model.ResetPasswordRequestDTO;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Service.MemberService;
@@ -157,6 +159,25 @@ public class MemberController {
             memberRepository.save(member);
             return ResponseEntity.ok("닉네임이 변경되었습니다.");
         } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
+
+    @GetMapping("/getNickname")
+    public ResponseEntity<?> getNickname(@AuthenticationPrincipal UserDetails userDetails) {
+        if(userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
+        }
+
+        String username = userDetails.getUsername();
+        Optional<Member> memberOptional = memberRepository.findByEmail(username)
+                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(username)));
+
+        if(memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+            String nickname = member.getNickname();
+            return ResponseEntity.ok(new NicknameResponse(nickname));
+        }else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
     }
