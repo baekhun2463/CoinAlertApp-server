@@ -133,7 +133,33 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/updateNickname")
+    public ResponseEntity<?> updateNickname(@RequestBody Map<String, String> nickname, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
+        }
 
+        String newNickname = nickname.get("nickname");
+        if (newNickname == null || newNickname.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 닉네임입니다.");
+        }
+
+        if(memberRepository.existsByNickname(newNickname)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("중복된 닉네임이 있습니다.");
+        }
+
+        Optional<Member> memberOptional = memberRepository.findByEmail(userDetails.getUsername())
+                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(userDetails.getUsername())));
+
+        if (memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+            member.setNickname(newNickname);
+            memberRepository.save(member);
+            return ResponseEntity.ok("닉네임이 변경되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
 
 }
 
