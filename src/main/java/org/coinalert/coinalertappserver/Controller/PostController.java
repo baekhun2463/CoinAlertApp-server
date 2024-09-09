@@ -1,5 +1,6 @@
 package org.coinalert.coinalertappserver.Controller;
 
+import feign.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.coinalert.coinalertappserver.Model.Member;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -56,6 +58,26 @@ public class PostController {
             return Collections.emptyList();
         }else {
             return posts;
+        }
+    }
+
+    @PostMapping("/toggleLike")
+    public ResponseEntity<Void> toggleLike(@RequestBody Map<String, Object> likeData) {
+        Long postId = ((Number) likeData.get("postId")).longValue();
+        Boolean isLiked = (Boolean) likeData.get("isLiked");
+
+        Optional<Post> postOptional = postRepository.findById(postId);
+        if(postOptional.isPresent()) {
+            Post post = postOptional.get();
+            if(isLiked) {
+                post.setLikes(post.getLikes() + 1);
+            } else {
+                post.setLikes(post.getLikes() - 1);
+            }
+            postRepository.save(post);
+            return ResponseEntity.ok().build();
+        }else {
+            return ResponseEntity.notFound().build();
         }
     }
 }
