@@ -1,11 +1,10 @@
 package org.coinalert.coinalertappserver.Controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.coinalert.coinalertappserver.Model.JwtResponse;
 import org.coinalert.coinalertappserver.Model.Member;
-import org.coinalert.coinalertappserver.Model.NicknameResponse;
+import org.coinalert.coinalertappserver.Model.MemberResponse;
 import org.coinalert.coinalertappserver.Model.ResetPasswordRequestDTO;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Service.MemberService;
@@ -24,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -176,10 +174,13 @@ public class MemberController {
         if(memberOptional.isPresent()) {
             Member member = memberOptional.get();
             String nickname = member.getNickname();
-            return ResponseEntity.ok(new NicknameResponse(nickname));
+            Long memberId = member.getId();
+            return ResponseEntity.ok(new MemberResponse(nickname, memberId));
         }else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
+
+
     }
 
 }

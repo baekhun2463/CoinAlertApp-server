@@ -1,6 +1,7 @@
 package org.coinalert.coinalertappserver.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,10 +25,10 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
-    @JsonIgnore
+    @JsonIgnore // Member 객체를 직렬화에서 제외
     private Member member;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // 순환 참조 방지
     private List<Comment> comments = new ArrayList<>();
 }
-

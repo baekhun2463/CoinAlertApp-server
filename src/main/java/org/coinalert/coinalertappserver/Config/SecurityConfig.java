@@ -33,7 +33,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                                 .requestMatchers("/auth/deleteAccount", "/auth/updateNickname",
                                         "/auth/getNickname", "/api/savePriceData", "/api/priceData",
-                                "/api/deletePriceData/**", "posts/newPost", "posts/getPosts").authenticated()
+                                "/api/deletePriceData/**", "posts/newPost", "posts/getPosts",
+                                        "/comments/**").authenticated()
                                 .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

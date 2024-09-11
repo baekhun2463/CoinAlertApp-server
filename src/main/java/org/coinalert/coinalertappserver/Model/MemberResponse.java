@@ -1,15 +1,16 @@
 package org.coinalert.coinalertappserver.Model;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class NicknameResponse {
+public class MemberResponse {
     private String nickname;
+    private Long memberId;
 
-    public NicknameResponse(String nickname) {
+    public MemberResponse(String nickname, Long memberId) {
+        this.memberId = memberId;
         this.nickname = nickname;
     }
 }
