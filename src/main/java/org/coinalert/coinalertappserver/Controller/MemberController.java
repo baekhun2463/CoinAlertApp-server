@@ -2,11 +2,10 @@ package org.coinalert.coinalertappserver.Controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.coinalert.coinalertappserver.Model.JwtResponse;
-import org.coinalert.coinalertappserver.Model.Member;
-import org.coinalert.coinalertappserver.Model.MemberResponse;
-import org.coinalert.coinalertappserver.Model.ResetPasswordRequestDTO;
+import org.coinalert.coinalertappserver.Model.*;
+import org.coinalert.coinalertappserver.Repository.CommentRepository;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
+import org.coinalert.coinalertappserver.Repository.PostRepository;
 import org.coinalert.coinalertappserver.Service.MemberService;
 import org.coinalert.coinalertappserver.Util.JwtUtil;
 import org.springframework.http.HttpStatus;
@@ -23,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,6 +33,8 @@ import java.util.Optional;
 public class MemberController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
@@ -179,8 +181,31 @@ public class MemberController {
         }else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
+    }
 
+    @GetMapping("/getMemberData")
+    public ResponseEntity<?> getMemberData(@AuthenticationPrincipal UserDetails userDetails) {
 
+        if(userDetails == null) {
+            return new ResponseEntity<>("유효하지않은 토큰입니다.", HttpStatus.UNAUTHORIZED);
+        }
+
+        String username = userDetails.getUsername();
+        Optional<Member> memberOptional = memberRepository.findByEmail(username)
+                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(username)));
+
+        if(memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+
+            List<Post> posts = postRepository.findByMember(member);
+
+            List<Comment> comments = commentRepository.findByAuthor(member.getNickname());
+
+            MemberDataResponse response = new MemberDataResponse(member.getNickname(), member.getAvatar_url(), posts, comments);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>("회원을 찾지 못헀습니다.", HttpStatus.NOT_FOUND);
+        }
     }
 
 }
