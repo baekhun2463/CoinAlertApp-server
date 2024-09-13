@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -56,11 +57,34 @@ public class CommentController {
 
             // Comment 저장
             commentRepository.save(comment);
+            postOptional.get().setCommentCount(postOptional.get().getCommentCount() + 1);
+            postRepository.save(postOptional.get());
             return new ResponseEntity<>(comment, HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>("게시물을 찾지 못헀습니다.", HttpStatus.NOT_FOUND);
         }
     }
 
+    @PostMapping("/toggleLike")
+    public ResponseEntity<Void> toggleLike(@RequestBody Map<String, Object> likeData) {
+        Long commentId = ((Number) likeData.get("commentId")).longValue();
+        Boolean isLiked = (Boolean) likeData.get("isLiked");
+
+        Optional<Comment> commentOptaional = commentRepository.findById(commentId);
+        if(commentOptaional.isPresent()) {
+            Comment comment = commentOptaional.get();
+            if(isLiked) {
+                comment.setLikes(comment.getLikes() + 1);
+                comment.setLiked(true);
+            }else {
+                comment.setLikes(comment.getLikes() - 1);
+                comment.setLiked(false);
+            }
+            commentRepository.save(comment);
+            return ResponseEntity.ok().build();
+        }else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

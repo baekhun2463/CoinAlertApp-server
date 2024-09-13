@@ -27,10 +27,6 @@ public class Comment {
     @JoinColumn(name = "post_id", nullable = true)
     @JsonIgnore
     private Post post;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "member_id", nullable = true)
-//    @JsonIgnore // 멤버 객체를 직렬화에서 제외
-//    private Member member;
+
 
 }
