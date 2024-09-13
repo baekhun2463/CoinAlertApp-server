@@ -29,6 +29,5 @@ public class Post {
     private Member member;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // 순환 참조 방지
     private List<Comment> comments = new ArrayList<>();
 }

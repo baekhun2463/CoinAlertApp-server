@@ -42,50 +42,23 @@ public class CommentController {
 
     @PostMapping("/newComment")
     public ResponseEntity<?> savedComment(@RequestBody CommentDTO commentDTO) {
-        log.debug("Received Comment DTO: {}", commentDTO);
 
-        // CommentDTO의 모든 필드 값을 상세히 출력
-        log.debug("CommentDTO Details - postId: {}, memberId: {}, content: {}, author: {}, likes: {}",
-                commentDTO.getPostId(), commentDTO.getMemberId(), commentDTO.getContent(),
-                commentDTO.getAuthor(), commentDTO.getLikes());
-
-        if (commentDTO == null || commentDTO.getPostId() == null || commentDTO.getMemberId() == null) {
-            log.error("Invalid Comment DTO: postId or memberId is null");
-            return new ResponseEntity<>("Invalid Comment data", HttpStatus.BAD_REQUEST);
-        }
-
-        // Post와 Member 객체를 ID로 조회
         Optional<Post> postOptional = postRepository.findById(commentDTO.getPostId());
-        Optional<Member> memberOptional = memberRepository.findById(commentDTO.getMemberId());
 
-        // Post 조회 결과 로그 추가
         if (postOptional.isPresent()) {
-            log.debug("Post found: {}", postOptional.get());
-        } else {
-            log.error("Post not found with ID: {}", commentDTO.getPostId());
-        }
-
-        // Member 조회 결과 로그 추가
-        if (memberOptional.isPresent()) {
-            log.debug("Member found: {}", memberOptional.get());
-        } else {
-            log.error("Member not found with ID: {}", commentDTO.getMemberId());
-        }
-
-        if (postOptional.isPresent() && memberOptional.isPresent()) {
             // Comment 객체 생성
             Comment comment = new Comment();
             comment.setPost(postOptional.get());
-            comment.setMember(memberOptional.get());
+            comment.setAuthor(commentDTO.getAuthor());
             comment.setContent(commentDTO.getContent());
             comment.setLikes(commentDTO.getLikes());
+            comment.setLiked(false);
 
-            log.debug("Saving Comment: {}", comment);
+            // Comment 저장
             commentRepository.save(comment);
             return new ResponseEntity<>(comment, HttpStatus.CREATED);
         } else {
-            log.error("Post or Member not found with given ID");
-            return new ResponseEntity<>("Post or Member not found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("게시물을 찾지 못헀습니다.", HttpStatus.NOT_FOUND);
         }
     }
 

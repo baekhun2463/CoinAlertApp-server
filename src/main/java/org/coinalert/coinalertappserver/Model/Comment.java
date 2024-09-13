@@ -21,19 +21,16 @@ public class Comment {
     private String content;
     private int likes;
     private boolean isLiked;
+    private String author;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = true)
-    @JsonBackReference // 순환 참조 방지
+    @JsonIgnore
     private Post post;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "member_id", nullable = true)
+//    @JsonIgnore // 멤버 객체를 직렬화에서 제외
+//    private Member member;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = true)
-    @JsonIgnore // 멤버 객체를 직렬화에서 제외
-    private Member member;
-
-    @JsonProperty("author")
-    public String getAuthor() {
-        return member != null ? member.getNickname() : "Unknown";
-    }
 }
