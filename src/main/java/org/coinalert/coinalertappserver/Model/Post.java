@@ -17,6 +17,8 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String avatar_url;
+    private String author;
     private String title;
     private String content;
     private String timestamp;

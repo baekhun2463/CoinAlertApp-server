@@ -42,10 +42,12 @@ public class PostController {
 
         Member member  = memberOptional.get();
         post.setMember(member);
-
+        post.setAuthor(member.getNickname());
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         post.setTimestamp(timestamp);
-
+        if(member.getAvatar_url() != null) {
+            post.setAvatar_url(member.getAvatar_url());
+        }
         Post savedPost = postRepository.save(post);
         return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
     }
