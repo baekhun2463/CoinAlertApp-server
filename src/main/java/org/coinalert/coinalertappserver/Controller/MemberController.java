@@ -208,5 +208,33 @@ public class MemberController {
         }
     }
 
+
+    @PostMapping("/updateAvatarUrl")
+    public ResponseEntity<String> updateAvatarUrl(@AuthenticationPrincipal UserDetails userDetails,
+                                                  @RequestBody Map<String, String> requestBody) {
+        if(userDetails == null) {
+            return new ResponseEntity<>("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED);
+        }
+
+        String username = userDetails.getUsername();
+        Optional<Member> memberOpttional = memberRepository.findByEmail(username)
+                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(username)));
+
+        if(memberOpttional.isPresent()) {
+            Member member = memberOpttional.get();
+            String newAvatarUrl = requestBody.get("avatar_url");
+
+            if(newAvatarUrl == null || newAvatarUrl.isEmpty()) {
+                return new ResponseEntity<>("유효하지 않은 URL입니다.", HttpStatus.BAD_REQUEST);
+            }
+
+            member.setAvatar_url(newAvatarUrl);
+            memberRepository.save(member);
+
+            return new ResponseEntity<>("프로필 사진이 성공적으로 업데이트 되었습니다.", HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        }
+    }
 }
 
