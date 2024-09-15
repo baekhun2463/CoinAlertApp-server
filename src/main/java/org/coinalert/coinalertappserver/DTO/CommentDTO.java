@@ -1,4 +1,4 @@
-package org.coinalert.coinalertappserver.Model;
+package org.coinalert.coinalertappserver.DTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

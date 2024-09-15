@@ -2,7 +2,7 @@ package org.coinalert.coinalertappserver.Controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.coinalert.coinalertappserver.Model.JwtResponse;
+import org.coinalert.coinalertappserver.DTO.JwtResponse;
 import org.coinalert.coinalertappserver.Model.Member;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Util.JwtUtil;

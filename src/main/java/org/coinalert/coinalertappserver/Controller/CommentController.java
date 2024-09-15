@@ -2,10 +2,8 @@ package org.coinalert.coinalertappserver.Controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.coinalert.coinalertappserver.Model.Comment;
-import org.coinalert.coinalertappserver.Model.CommentDTO;
-import org.coinalert.coinalertappserver.Model.Member;
+import org.coinalert.coinalertappserver.DTO.CommentDTO;
 import org.coinalert.coinalertappserver.Model.Post;
 import org.coinalert.coinalertappserver.Repository.CommentRepository;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;

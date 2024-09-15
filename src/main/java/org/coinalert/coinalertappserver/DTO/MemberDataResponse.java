@@ -1,9 +1,11 @@
-package org.coinalert.coinalertappserver.Model;
+package org.coinalert.coinalertappserver.DTO;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.coinalert.coinalertappserver.Model.Comment;
+import org.coinalert.coinalertappserver.Model.Post;
 
 import java.util.List;
 

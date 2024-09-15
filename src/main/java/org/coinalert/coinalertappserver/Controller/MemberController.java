@@ -2,6 +2,10 @@ package org.coinalert.coinalertappserver.Controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.coinalert.coinalertappserver.DTO.JwtResponse;
+import org.coinalert.coinalertappserver.DTO.MemberDataResponse;
+import org.coinalert.coinalertappserver.DTO.MemberResponse;
+import org.coinalert.coinalertappserver.DTO.ResetPasswordRequestDTO;
 import org.coinalert.coinalertappserver.Model.*;
 import org.coinalert.coinalertappserver.Repository.CommentRepository;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;

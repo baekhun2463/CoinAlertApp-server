@@ -1,4 +1,4 @@
-package org.coinalert.coinalertappserver.Model;
+package org.coinalert.coinalertappserver.DTO;
 
 import lombok.Getter;
 import lombok.Setter;
