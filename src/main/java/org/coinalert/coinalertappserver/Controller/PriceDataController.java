@@ -37,9 +37,9 @@ public class PriceDataController {
     }
 
     @GetMapping("/priceData")
-    public ResponseEntity<List<PriceData>> getPriceData(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getPriceData(@AuthenticationPrincipal UserDetails userDetails) {
         if(userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
         }
 
         String username = userDetails.getUsername();
@@ -50,8 +50,7 @@ public class PriceDataController {
     }
 
     @DeleteMapping("/deletePriceData/{id}")
-    public ResponseEntity<Void> deletePriceData(@PathVariable Long id,
-                                                @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Void> deletePriceData(@PathVariable Long id) {
         try {
             priceDataService.deletePriceData(id);
             return ResponseEntity.ok().build();

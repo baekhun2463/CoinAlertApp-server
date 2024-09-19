@@ -6,10 +6,10 @@ import lombok.Setter;
 // DTO
 @Getter
 @Setter
-public class JwtResponse {
+public class JwtResponseDTO {
     private String jwt;
 
-    public JwtResponse(String jwt) {
+    public JwtResponseDTO(String jwt) {
         this.jwt = jwt;
     }
 

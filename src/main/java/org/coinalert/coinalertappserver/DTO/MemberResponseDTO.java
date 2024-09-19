@@ -5,11 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MemberResponse {
+public class MemberResponseDTO {
     private String nickname;
     private Long memberId;
 
-    public MemberResponse(String nickname, Long memberId) {
+    public MemberResponseDTO(String nickname, Long memberId) {
         this.memberId = memberId;
         this.nickname = nickname;
     }

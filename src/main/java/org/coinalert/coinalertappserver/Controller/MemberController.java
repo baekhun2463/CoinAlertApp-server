@@ -1,11 +1,14 @@
 package org.coinalert.coinalertappserver.Controller;
 
+import feign.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.coinalert.coinalertappserver.DTO.JwtResponse;
-import org.coinalert.coinalertappserver.DTO.MemberDataResponse;
-import org.coinalert.coinalertappserver.DTO.MemberResponse;
+import org.coinalert.coinalertappserver.DTO.JwtResponseDTO;
+import org.coinalert.coinalertappserver.DTO.MemberDataResponseDTO;
+import org.coinalert.coinalertappserver.DTO.MemberResponseDTO;
 import org.coinalert.coinalertappserver.DTO.ResetPasswordRequestDTO;
+import org.coinalert.coinalertappserver.Exception.UnauthorizedException;
+import org.coinalert.coinalertappserver.Exception.UserNotFoundException;
 import org.coinalert.coinalertappserver.Model.*;
 import org.coinalert.coinalertappserver.Repository.CommentRepository;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
@@ -36,51 +39,31 @@ import java.util.Optional;
 @RequestMapping("/auth")
 public class MemberController {
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
-    private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
     private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Member member) {
-        Optional<Member> user = memberRepository.findByEmail(member.getEmail());
-
-        if (user.isPresent()) {
+        boolean isRegistered = memberService.checkIfUserExistsAndRegister(member);
+        if(!isRegistered) {
             return ResponseEntity.badRequest().body("이메일이 이미 있습니다.");
         }
-        memberService.registerUser(member);
+
         return ResponseEntity.ok("성공적으로 회원가입이 되었습니다.");
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Member member) throws BadCredentialsException {
         try {
-            // 사용자 인증 시도
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(member.getUsername(), member.getPassword()));
 
-            // 인증된 사용자로 SecurityContext 설정
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            Optional<Member> optionalMember = memberRepository.findByEmail(member.getEmail());
-
-            Member foundMember = optionalMember.orElseThrow(() -> new UsernameNotFoundException("존재하지 않은 회원입니다."));
-
-            foundMember.setLastLogin(LocalDateTime.now());
-
-            memberRepository.save(foundMember);
-
-            // JWT 토큰 생성
-            String jwt = jwtUtil.generateToken(authentication);
-
-            return ResponseEntity.ok(new JwtResponse(jwt));
+            String jwt = memberService.authenticateAndGenerateToken(member, authentication);
+            return ResponseEntity.ok(new JwtResponseDTO(jwt));
         } catch (BadCredentialsException e) {
-            // 잘못된 사용자 자격 증명 처리
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자 이름 또는 비밀번호가 잘못되었습니다.");
         } catch (Exception e) {
-            // 그 외 인증 실패 처리
             log.error("Authentication failed: ", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 요청입니다.");
         }
@@ -88,22 +71,14 @@ public class MemberController {
 
     @DeleteMapping("/deleteAccount")
     public ResponseEntity<?> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        if(userDetails == null) {
+        try {
+            memberService.deleteMember(userDetails);
+            return ResponseEntity.ok("계정이 성공적으로 삭제되었습니다.");
+        }catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
-        }
-
-        String identifier = userDetails.getUsername();
-        Member member = memberRepository.findByEmail(identifier)
-                .orElseGet(() -> memberRepository.findByOauth2Id(Long.valueOf(identifier))
-                        .orElse(null));
-
-        if(member == null) {
+        }catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
-
-        memberRepository.delete(member);
-
-        return ResponseEntity.ok("계정이 성공적으로 삭제되었습니다");
     }
 
     @PostMapping("/findEmailByNickName")
@@ -114,57 +89,30 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("닉네임을 입력해주세요.");
         }
 
-        Optional<Member> member = memberRepository.findByNickname(nickName);
-
-        if (member.isPresent()) {
-            String email = member.get().getEmail();
-            return ResponseEntity.ok(email);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("닉네임이 올바르지 않습니다.");
-        }
+        return memberService.findEmailByNickname(nickName)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("닉네임이 올바르지 않습니다."));
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO) {
-        Optional<Member> memberOptional = memberRepository.findByEmail(resetPasswordRequestDTO.getEmail());
-
-        if(memberOptional.isPresent()) {
-            Member member = memberOptional.get();
-
-            member.setPassword(passwordEncoder.encode(resetPasswordRequestDTO.getPassword()));
-            memberRepository.save(member);
-            return ResponseEntity.ok("비밀번호가 성공적으로 재설정되었습니다.");
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("이메일을 찾을 수 없습니다.");
-        }
+        memberService.resetPassword(resetPasswordRequestDTO.getEmail(), resetPasswordRequestDTO.getPassword());
+        return ResponseEntity.ok("비밀번호가 성공적으로 재설정되었습니다.");
     }
 
     @PostMapping("/updateNickname")
     public ResponseEntity<?> updateNickname(@RequestBody Map<String, String> nickname, @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
+        if(userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자.");
         }
 
         String newNickname = nickname.get("nickname");
-        if (newNickname == null || newNickname.trim().isEmpty()) {
+        if(newNickname == null || newNickname.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 닉네임입니다.");
         }
 
-        if(memberRepository.existsByNickname(newNickname)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("중복된 닉네임이 있습니다.");
-        }
-
-        Optional<Member> memberOptional = memberRepository.findByEmail(userDetails.getUsername())
-                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(userDetails.getUsername())));
-
-        if (memberOptional.isPresent()) {
-            Member member = memberOptional.get();
-            member.setNickname(newNickname);
-            memberRepository.save(member);
-            return ResponseEntity.ok("닉네임이 변경되었습니다.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
-        }
+        memberService.updateNickname(newNickname, userDetails.getUsername());
+        return ResponseEntity.ok("닉네임이 변경되었습니다.");
     }
 
     @GetMapping("/getNickname")
@@ -172,19 +120,8 @@ public class MemberController {
         if(userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증되지 않은 사용자입니다.");
         }
-
-        String username = userDetails.getUsername();
-        Optional<Member> memberOptional = memberRepository.findByEmail(username)
-                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(username)));
-
-        if(memberOptional.isPresent()) {
-            Member member = memberOptional.get();
-            String nickname = member.getNickname();
-            Long memberId = member.getId();
-            return ResponseEntity.ok(new MemberResponse(nickname, memberId));
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
-        }
+        MemberResponseDTO response = memberService.getNickname(userDetails.getUsername());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/getMemberData")
@@ -194,22 +131,8 @@ public class MemberController {
             return new ResponseEntity<>("유효하지않은 토큰입니다.", HttpStatus.UNAUTHORIZED);
         }
 
-        String username = userDetails.getUsername();
-        Optional<Member> memberOptional = memberRepository.findByEmail(username)
-                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(username)));
-
-        if(memberOptional.isPresent()) {
-            Member member = memberOptional.get();
-
-            List<Post> posts = postRepository.findByMember(member);
-
-            List<Comment> comments = commentRepository.findByAuthor(member.getNickname());
-
-            MemberDataResponse response = new MemberDataResponse(member.getNickname(), member.getAvatar_url(), posts, comments);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>("회원을 찾지 못헀습니다.", HttpStatus.NOT_FOUND);
-        }
+        MemberDataResponseDTO response = memberService.getMemberData(userDetails.getUsername());
+        return ResponseEntity.ok(response);
     }
 
 
@@ -220,24 +143,16 @@ public class MemberController {
             return new ResponseEntity<>("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED);
         }
 
-        String username = userDetails.getUsername();
-        Optional<Member> memberOpttional = memberRepository.findByEmail(username)
-                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(username)));
+        String newAvatarUrl = requestBody.get("avatar_url");
+        if(newAvatarUrl == null || newAvatarUrl.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 URL입니다.");
+        }
 
-        if(memberOpttional.isPresent()) {
-            Member member = memberOpttional.get();
-            String newAvatarUrl = requestBody.get("avatar_url");
-
-            if(newAvatarUrl == null || newAvatarUrl.isEmpty()) {
-                return new ResponseEntity<>("유효하지 않은 URL입니다.", HttpStatus.BAD_REQUEST);
-            }
-
-            member.setAvatar_url(newAvatarUrl);
-            memberRepository.save(member);
-
-            return new ResponseEntity<>("프로필 사진이 성공적으로 업데이트 되었습니다.", HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        try {
+            memberService.updateAvatarUrl(userDetails.getUsername(), newAvatarUrl);
+            return ResponseEntity.ok("프로필 사진이 성공적으로 업데이트 되었습니다.");
+        }catch(UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
     }
 }

@@ -20,7 +20,6 @@ public class JwtUtil {
     @Value("${jwt.issuer}")
     private String jwtIssuer;
     private final long jwtAccessTokenExpirationInMs = 3600000;
-    private final long jwtRefreshTokenExpirationInMs = 86400000;
 
     // JWT Access Token 생성
     public String generateToken(Authentication authentication) {

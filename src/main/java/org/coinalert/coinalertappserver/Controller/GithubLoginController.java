@@ -2,7 +2,7 @@ package org.coinalert.coinalertappserver.Controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.coinalert.coinalertappserver.DTO.JwtResponse;
+import org.coinalert.coinalertappserver.DTO.JwtResponseDTO;
 import org.coinalert.coinalertappserver.Model.Member;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Util.JwtUtil;
@@ -34,7 +34,7 @@ public class GithubLoginController {
 
             // JWT 토큰 생성
             String jwt = jwtUtil.generateTokenOauth2(existing.getEmail()); // 이메일을 사용하여 JWT 생성
-            return ResponseEntity.ok(new JwtResponse(jwt));
+            return ResponseEntity.ok(new JwtResponseDTO(jwt));
         } else {
             // 새로운 회원 등록
             Member newMember = Member.builder()
@@ -53,7 +53,7 @@ public class GithubLoginController {
 
             // JWT 토큰 생성
             String jwt = jwtUtil.generateTokenOauth2(newMember.getEmail()); // 이메일을 사용하여 JWT 생성
-            return ResponseEntity.ok(new JwtResponse(jwt));
+            return ResponseEntity.ok(new JwtResponseDTO(jwt));
         }
     }
 }
