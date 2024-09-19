@@ -1,6 +1,7 @@
 package org.coinalert.coinalertappserver.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.coinalert.coinalertappserver.Exception.UserNotFoundException;
 import org.coinalert.coinalertappserver.Model.Member;
 import org.coinalert.coinalertappserver.Model.PriceData;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
@@ -21,11 +22,20 @@ public class PriceDataService {
     private final PriceDataRepository priceDataRepository;
     private final MemberRepository memberRepository;
 
-    public PriceData savePriceData(PriceData priceData, String username) {
-        Optional<Member> memberOptional = memberRepository.findByEmail(username)
-                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(username)));
+    //Optional 체이닝
+    //Optional을 사용하는 코드에서 isPresent()를 사용하지 않아도 문제가 생기지 않은 이유는
+    //orElseGet()과 같은 메서드가 Optional이 비어있을 때만 실행되기 때문.
+    //반대로 값이 있는 경우에는 값을 바로 반환.
+    //이 방식을 사용하면 isPresent()를 호출해서 값이 있는지 확인하고 처리를 따로 안해도됨
+    //요약 하면 orElseThrow()는 값이 없으면 에외를 던지고 있으면 반환
+    public Member findMember(String identifier) throws UserNotFoundException {
+        return memberRepository.findByEmail(identifier)
+                .orElseGet(() -> memberRepository.findByOauth2Id(Long.valueOf(identifier))
+                        .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다.")));
+    }
 
-            Member member = memberOptional.get();
+    public PriceData savePriceData(PriceData priceData, String username) {
+            Member member = findMember(username);
             priceData.setMember(member);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
@@ -36,15 +46,8 @@ public class PriceDataService {
     }
 
     public List<PriceData> getPriceData(String username) {
-        Optional<Member> memberOptional = memberRepository.findByEmail(username)
-                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(username)));
-
-        if(memberOptional.isPresent()) {
-            Member member =  memberOptional.get();
-            return priceDataRepository.findByMember_Id(member.getId());
-        }else {
-            return Collections.emptyList();
-        }
+        Member member = findMember(username);
+        return priceDataRepository.findByMember_Id(member.getId());
     }
 
     public void deletePriceData(Long id) {

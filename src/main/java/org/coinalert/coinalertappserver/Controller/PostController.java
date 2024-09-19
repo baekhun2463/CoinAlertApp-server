@@ -7,6 +7,7 @@ import org.coinalert.coinalertappserver.Model.Member;
 import org.coinalert.coinalertappserver.Model.Post;
 import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Repository.PostRepository;
+import org.coinalert.coinalertappserver.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,64 +23,27 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/posts")
 public class PostController {
-    private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
-
-    @Autowired
-    public PostController(PostRepository postRepository, MemberRepository memberRepository) {
-        this.postRepository = postRepository;
-        this.memberRepository = memberRepository;
-    }
+    private final PostService postService;
 
 
     @PostMapping("/newPost")
-    public ResponseEntity<?> savedPost(@RequestBody Post post, @AuthenticationPrincipal UserDetails userDetails) {
-        Optional<Member> memberOptional = memberRepository.findByEmail(userDetails.getUsername())
-                .or(() -> memberRepository.findByOauth2Id(Long.valueOf(userDetails.getUsername())));
-
-        Member member  = memberOptional.get();
-        post.setMember(member);
-        post.setAuthor(member.getNickname());
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        post.setTimestamp(timestamp);
-        if(member.getAvatar_url() != null) {
-            post.setAvatar_url(member.getAvatar_url());
-        }
-        Post savedPost = postRepository.save(post);
+    public ResponseEntity<?> savePost(@RequestBody Post post, @AuthenticationPrincipal UserDetails userDetails) {
+        Post savedPost = postService.savePost(post, userDetails);
         return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
     }
 
     @GetMapping("/getPosts")
-    public List<Post> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
-
-        if(posts.isEmpty()) {
-            return Collections.emptyList();
-        }else {
-            return posts;
-        }
+    public ResponseEntity<List<Post>> getAllPosts() {
+        return ResponseEntity.ok(postService.getAllPosts());
     }
 
     @PostMapping("/toggleLike")
     public ResponseEntity<Void> toggleLike(@RequestBody Map<String, Object> likeData) {
-        Long postId = ((Number) likeData.get("postId")).longValue();
-        Boolean isLiked = (Boolean) likeData.get("isLiked");
-
-        Optional<Post> postOptional = postRepository.findById(postId);
-        if(postOptional.isPresent()) {
-            Post post = postOptional.get();
-            if(isLiked) {
-                post.setLikes(post.getLikes() + 1);
-            } else {
-                post.setLikes(post.getLikes() - 1);
-            }
-            postRepository.save(post);
-            return ResponseEntity.ok().build();
-        }else {
-            return ResponseEntity.notFound().build();
-        }
+        boolean success = postService.toggleLike(likeData);
+        return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 }
