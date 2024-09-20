@@ -2,15 +2,10 @@ package org.coinalert.coinalertappserver.Controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.coinalert.coinalertappserver.Exception.CommentNotFoundException;
 import org.coinalert.coinalertappserver.Exception.PostNotFoundException;
 import org.coinalert.coinalertappserver.Model.Comment;
 import org.coinalert.coinalertappserver.DTO.CommentDTO;
-import org.coinalert.coinalertappserver.Model.Post;
-import org.coinalert.coinalertappserver.Repository.CommentRepository;
-import org.coinalert.coinalertappserver.Repository.MemberRepository;
-import org.coinalert.coinalertappserver.Repository.PostRepository;
 import org.coinalert.coinalertappserver.Service.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController

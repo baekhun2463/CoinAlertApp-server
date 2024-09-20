@@ -1,6 +1,5 @@
 package org.coinalert.coinalertappserver.Controller;
 
-import feign.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.coinalert.coinalertappserver.DTO.JwtResponseDTO;
@@ -10,11 +9,7 @@ import org.coinalert.coinalertappserver.DTO.ResetPasswordRequestDTO;
 import org.coinalert.coinalertappserver.Exception.UnauthorizedException;
 import org.coinalert.coinalertappserver.Exception.UserNotFoundException;
 import org.coinalert.coinalertappserver.Model.*;
-import org.coinalert.coinalertappserver.Repository.CommentRepository;
-import org.coinalert.coinalertappserver.Repository.MemberRepository;
-import org.coinalert.coinalertappserver.Repository.PostRepository;
 import org.coinalert.coinalertappserver.Service.MemberService;
-import org.coinalert.coinalertappserver.Util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,14 +19,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
+
 import java.util.Map;
-import java.util.Optional;
+
 
 @Slf4j
 @RestController
