@@ -15,13 +15,8 @@ import org.coinalert.coinalertappserver.Repository.MemberRepository;
 import org.coinalert.coinalertappserver.Repository.PostRepository;
 import org.coinalert.coinalertappserver.Util.JwtUtil;
 import org.coinalert.coinalertappserver.Util.Role;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -42,7 +37,6 @@ public class MemberService implements UserDetailsService{
     private final JwtUtil jwtUtil;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-    
 
     public boolean checkIfUserExistsAndRegister(Member member) {
         if(memberRepository.findByEmail(member.getEmail()).isPresent()) {
@@ -110,6 +104,7 @@ public class MemberService implements UserDetailsService{
         return memberRepository.findByNickname(nickName)
                 .map(Member::getEmail);
     }
+
 
     public void resetPassword(String email, String newPassword) {
         Member member = memberRepository.findByEmail(email)

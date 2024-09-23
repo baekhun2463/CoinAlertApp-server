@@ -3,9 +3,7 @@ package org.coinalert.coinalertappserver.Service;
 import lombok.RequiredArgsConstructor;
 import org.coinalert.coinalertappserver.Model.Member;
 import org.coinalert.coinalertappserver.Model.Post;
-import org.coinalert.coinalertappserver.Repository.CommentRepository;
 import org.coinalert.coinalertappserver.Repository.PostRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +17,16 @@ import java.util.Optional;
 @Service
 public class PostService {
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
     private final MemberService memberService;
+//    private final PostServiceClient postServiceClient;
+//
+//    public Post getPost(Long id) {
+//        return postServiceClient.getPostById(id);
+//    }
+//
+//    public Post createPost(Post post) {
+//        return postServiceClient.createPost(post);
+//    }
 
     public Post savePost(Post post, UserDetails userDetails) {
         Member member = memberService.findMember(userDetails.getUsername());
