@@ -47,7 +47,7 @@ jobs:
 
       - name: CodeDeploy
         run: |
-          aws deploy create_deployment \
+          aws deploy create-deployment \
           --deployment-config-name CodeDeployDefault.AllAtOnce \
           --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
           --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
