@@ -1,4 +1,4 @@
-name: CI-CD
+name: CoinAlertApp-CI-CD
 
 on:
   push:
