@@ -8,6 +8,10 @@ APPLICATION_LOG_PATH="/home/ubuntu/$PROJECT_NAME/application.log"
 BUILD_JAR=$(ls $JAR_PATH)
 JAR_NAME=$(basename $BUILD_JAR)
 
+if [ -z "$BUILD_JAR" ]; then
+  echo "Error: JAR 파일을 찾을 수 없습니다." >> $DEPLOY_ERR_LOG_PATH
+  exit 1
+fi
 
 echo "==== 배포 시작 : $(date +%c) ====" >> $DEPLOY_LOG_PATH
 
@@ -29,7 +33,7 @@ else
   kill -9 $CURRENT_PID
 fi
 
-DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
+DEPLOY_JAR="$DEPLOY_PATH/$JAR_NAME"
 echo "> DEPLOY_JAR 배포" >> $DEPLOY_LOG_PATH
 nohup java -jar -Dspring.profiles.active=local $DEPLOY_JAR --server.port=8081 >> $APPLICATION_LOG_PATH 2> $DEPLOY_ERR_LOG_PATH &
 
