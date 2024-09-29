@@ -8,15 +8,6 @@ APPLICATION_LOG_PATH="/home/ubuntu/$PROJECT_NAME/application.log"
 BUILD_JAR=$(ls $JAR_PATH)
 JAR_NAME=$(basename $BUILD_JAR)
 
-if [ -f /home/ubuntu/CoinAlertApp-server ]; then
-    echo "> 기존 CoinAlertApp-server 파일이 존재합니다. 삭제합니다." >> $DEPLOY_LOG_PATH
-    rm /home/ubuntu/CoinAlertApp-server
-fi
-
-if [ ! -d $DEPLOY_PATH ]; then
-  echo "> $DEPLOY_PATH 폴더가 없으므로 생성합니다." >> $DEPLOY_LOG_PATH
-  mkdir -p $DEPLOY_PATH
-fi
 
 echo "==== 배포 시작 : $(date +%c) ====" >> $DEPLOY_LOG_PATH
 
