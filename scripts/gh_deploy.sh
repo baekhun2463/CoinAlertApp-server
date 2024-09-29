@@ -8,6 +8,11 @@ APPLICATION_LOG_PATH="/home/ubuntu/$PROJECT_NAME/application.log"
 BUILD_JAR=$(ls $JAR_PATH)
 JAR_NAME=$(basename $BUILD_JAR)
 
+if [ ! -d $DEPLOY_PATH ]; then
+  echo "> $DEPLOY_PATH 폴더가 없으므로 생성합니다." >> $DEPLOY_LOG_PATH
+  mkdir -p $DEPLOY_PATH
+fi
+
 echo "==== 배포 시작 : $(date +%c) ====" >> $DEPLOY_LOG_PATH
 
 
