@@ -53,6 +53,8 @@ public class MemberService implements UserDetailsService{
     //이 방식을 사용하면 isPresent()를 호출해서 값이 있는지 확인하고 처리를 따로 안해도됨
     //요약 하면 orElseThrow()는 값이 없으면 에외를 던지고 있으면 반환
     public Member findMember(String identifier) throws UserNotFoundException{
+        log.info("Looking for user with identifier: {}", identifier);
+
         return memberRepository.findByEmail(identifier)
                 .orElseGet(() -> memberRepository.findByOauth2Id(Long.valueOf(identifier))
                         .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다.")));
@@ -131,6 +133,8 @@ public class MemberService implements UserDetailsService{
 
     public MemberDataResponseDTO getMemberData(String username) {
         Member member = findMember(username);
+
+        log.info("Fetched Member Data: {}", member);
 
         List<Post> posts = postRepository.findByMember(member);
         List<Comment> comments = commentRepository.findByAuthor(member.getNickname());

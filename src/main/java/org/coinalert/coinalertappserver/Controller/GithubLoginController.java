@@ -23,12 +23,15 @@ public class GithubLoginController {
     private final JwtUtil jwtUtil;
     @PostMapping("/github-login")
     public ResponseEntity<?> githubLogin(@RequestBody Member member) {
+        log.info("GitHub User Info: {}", member);
+
         // 이메일을 기준으로 회원을 찾습니다.
         Optional<Member> existingMember = memberRepository.findByEmail(member.getEmail());
 
         if(existingMember.isPresent()) {
             // 기존 회원이 존재하는 경우, 마지막 로그인 시간 업데이트
             Member existing = existingMember.get();
+            log.info("Existing Member Info: {}", existing);
             existing.setLastLogin(LocalDateTime.now());
             memberRepository.save(existing); // 업데이트된 정보를 저장
 
@@ -36,6 +39,8 @@ public class GithubLoginController {
             String jwt = jwtUtil.generateTokenOauth2(existing.getEmail()); // 이메일을 사용하여 JWT 생성
             return ResponseEntity.ok(new JwtResponseDTO(jwt));
         } else {
+            log.info("New Member Registration: {}", member);
+
             // 새로운 회원 등록
             Member newMember = Member.builder()
                     .nickname(member.getNickname())
