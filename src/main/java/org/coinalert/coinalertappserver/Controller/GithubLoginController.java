@@ -31,7 +31,7 @@ public class GithubLoginController {
         if(existingMember.isPresent()) {
             // 기존 회원이 존재하는 경우, 마지막 로그인 시간 업데이트
             Member existing = existingMember.get();
-            log.info("Existing Member Info: {}", existing);
+            log.info("Existing Member Info: {}", existing.getAvatar_url());
             existing.setLastLogin(LocalDateTime.now());
             memberRepository.save(existing); // 업데이트된 정보를 저장
 
