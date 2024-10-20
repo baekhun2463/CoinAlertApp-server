@@ -134,7 +134,7 @@ public class MemberService implements UserDetailsService{
     public MemberDataResponseDTO getMemberData(String username) {
         Member member = findMember(username);
 
-        log.info("Fetched Member Data: {}", member);
+        log.info("Fetched Member Data: {}", member.getAvatar_url());
 
         List<Post> posts = postRepository.findByMember(member);
         List<Comment> comments = commentRepository.findByAuthor(member.getNickname());
