@@ -13,8 +13,7 @@
 - 코인알람과 커뮤니티가 있는 어플리케이션
 
 ## ERD
-
-
+<img src = "https://github.com/user-attachments/assets/db1f91ca-0ff9-482f-900b-a8442d8010d1" width="40%" height="40%">
 
 ### CI/CD 플로우
-
+<img src = "https://github.com/user-attachments/assets/c7dca5ed-cf9c-4464-b628-d0eebc4188a9" width="80%" height="80%">
